@@ -1,12 +1,8 @@
 "use client"
-import { BookOpen, RotateCcw } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import Link from "next/link";
 
-interface LogoProps {
-    handleReestart: () => Promise<void>
-}
-
-export default function Logo({ handleReestart }: LogoProps) {
+export default function Logo() {
     return (
         <>
         <Link href="/">
@@ -15,11 +11,6 @@ export default function Logo({ handleReestart }: LogoProps) {
             <BookOpen className="size-6 inline-block ml-2" />
           </h1>
         </Link>
-
-        <h2 className="text-md font-semibold">
-          Evangelhos
-          <RotateCcw className="size-5 inline-block ml-2 cursor-pointer" onClick={handleReestart} />
-        </h2>
         </>
     );
 }

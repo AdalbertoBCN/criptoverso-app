@@ -8,6 +8,7 @@ import SubmitInput from "@/components/submit-input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGameLogic } from "@/hooks/useGameLogic";
+import { RotateCcw } from "lucide-react";
 
 export default function Evangelhos() {
   const {
@@ -25,7 +26,13 @@ export default function Evangelhos() {
   return (
     <div className="flex flex-col h-screen relative">
       <header className="h-16 flex items-center justify-between px-4 bg-foreground/10 dark:bg-foreground/5">
-        <Logo handleReestart={handleReestart} />
+        <Logo />
+
+
+        <h2 className="text-md font-semibold">
+          Evangelhos
+          <RotateCcw className="size-5 inline-block ml-2 cursor-pointer" onClick={handleReestart} />
+        </h2>
 
         <ThemeToggle />
       </header>
