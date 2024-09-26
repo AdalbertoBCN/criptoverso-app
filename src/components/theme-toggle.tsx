@@ -10,22 +10,16 @@ import { cn } from "@/lib/utils";
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
 
-  // Função para alternar entre os modos claro, escuro e sistema
-  const toggleTheme = () => {
-    if (theme === "dark") {
-      setTheme("light");
-    } else if (theme === "light") {
-      setTheme("system");
-    } else {
-      setTheme("dark");
-    }
-  };
+  function toggleDarkMode() {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggleTheme}
+      onClick={toggleDarkMode}
+
       className={cn("rounded-full hover:bg-primary/20")}
     >
       {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
