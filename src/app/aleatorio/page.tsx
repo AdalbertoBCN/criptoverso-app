@@ -69,7 +69,7 @@ export default function Aleatorio() {
             setSelectedGuess={setSelectedGuess}
             wordsState={wordsState}
             selectedGuess={selectedGuess}
-          />
+            />
         </aside>
       </main>
     </div>

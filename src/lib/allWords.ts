@@ -9,6 +9,6 @@ export const allWords = [
     "o", "a", "os", "as", "um", "uma", "uns", "umas", 
     "a", "até", "com", "contra", "de", "desde", "em", "entre", "para", "por", "sem", "sob", "sobre", "como", 
     "ao", "e", "mas", "porém", "todavia", "contudo", "entretanto", "ou", "ora", "quer", "nem", "que", "porque", "pois", 
-    "porquanto", "como", "assim", "logo", "portanto", "enquanto", "é", "foi",
+    "porquanto", "como", "assim", "logo", "portanto", "enquanto", "é", "foi", "do", "da", "no", "na", "num", "numa",
   ];
   

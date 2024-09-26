@@ -4,6 +4,7 @@ import { WordsGuess } from "@/types";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { capitalize } from "@/lib/string";
 import { Dispatch, SetStateAction } from "react";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ListGuessesProps {
   wordsGuess: WordsGuess | null;
@@ -36,6 +37,8 @@ export default function ListGuesses({
               {wordsState.error.message.join(", ")}
             </div>
           )}
+          <ScrollArea className="h-[83vh] pr-1.5">
+
           <ToggleGroup
             type="single"
             className="flex flex-col-reverse p-0"
@@ -57,7 +60,7 @@ export default function ListGuesses({
                     "dark:text-destructive data-[state=on]:text-destructive": word.count < 1,
                   }
                 )}
-              >
+                >
                 <span>
                   {["deus", "jesus"].includes(word.word)
                     ? capitalize(word.word)
@@ -67,6 +70,7 @@ export default function ListGuesses({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
+        </ScrollArea>
         </>
       )}
     </>
