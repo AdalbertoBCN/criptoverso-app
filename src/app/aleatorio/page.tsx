@@ -56,6 +56,7 @@ export default function Aleatorio() {
                 inputWord={inputWord}
                 handleFormSubmit={handleFormSubmit}
                 setInputWord={setInputWord}
+                win={randomChapter.win}
               />
             ) : (
               <Spinner />
