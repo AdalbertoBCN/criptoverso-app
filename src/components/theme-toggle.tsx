@@ -1,53 +1,24 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import * as React from "react"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => setMounted(true), []);
-
-  function ButtonDarkMode() {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setTheme("dark")}
-        className={cn("rounded-full hover:bg-primary/20")}
-      >
-        <Moon size={20} />
-        <span className="sr-only">Ativar modo escuro</span>
-      </Button>
-    );
-  }
-
-  if (!mounted) {
-    return <div className="size-8 ml-2"/>;
-  }
-
-  function ButtonLightMode() {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setTheme("light")}
-        className={cn("rounded-full hover:bg-primary/20")}
-      >
-        <Sun size={20} />
-        <span className="sr-only">Ativar modo claro</span>
-      </Button>
-    );
-  }
+  const { setTheme, theme } = useTheme()
 
   return (
-    <div>
-      {theme === "dark" ? <ButtonLightMode /> : <ButtonDarkMode />}
-    </div>
-  );
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="rounded-full hover:bg-foreground/10 dark:hover:bg-foreground/5"
+    >
+      <Sun className="h-[1.5rem] w-[1.3rem] dark:hidden" />
+      <Moon className="hidden h-5 w-5 dark:block" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  )
 }
