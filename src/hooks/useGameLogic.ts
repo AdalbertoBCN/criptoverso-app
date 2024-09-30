@@ -1,45 +1,75 @@
 "use client";
+
 import { deleteCookies } from "@/app/(actions)/delete-cookies";
 import { fetchRandomChapter } from "@/app/(actions)/get-random-chapter";
-import { getWordsGuess } from "@/app/(actions)/get-words-guess";
-import { submitWord as actionSubmitWord } from "@/app/(actions)/submit-word";
-import { submitWordGospel as actionSubmitWordGospel } from "@/app/(actions)/submit-word";
+import {
+  submitWord as actionSubmitWord,
+  submitWordGospel as actionSubmitWordGospel,
+} from "@/app/(actions)/submit-word";
+import { getwordsGuessStorageName, raise } from "@/lib/utils";
 import { CensorChapter, WordsGuess } from "@/types";
+import { useLocalStorage } from "usehooks-ts";
 import { useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import useGiveUp from "./useGiveUp";
 
 interface UseGameLogicProps {
   isGospel: boolean;
 }
 
 export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
-  const [randomChapter, setRandomChapter] = useState<(CensorChapter & { win?: boolean }) | null>(null);
-  const [wordsGuess, setWordsGuess] = useState<WordsGuess | null>(null);
+  const [wordsGuess, setWordsGuess, removeWordsGuess] = useLocalStorage<WordsGuess>(
+    getwordsGuessStorageName(isGospel),
+    { words: [] }
+  );
+
+  const [randomChapter, setRandomChapter] = useState<
+    (CensorChapter & { win?: boolean }) | null
+  >(null);
+
   const [inputWord, setInputWord] = useState<string>("");
   const [selectedGuess, setSelectedGuess] = useState<string | null>(null);
-  const [wordsState, submitWord] = useFormState(isGospel ? actionSubmitWordGospel : actionSubmitWord, null);
 
-  const fetchChapterData = async () => {
+  const actionSubmit = isGospel ? actionSubmitWordGospel : actionSubmitWord;
+
+  const [messageError, setMessageError] = useState<string | undefined>();
+
+  const { giveUp, handleGiveUp, removeGiveUp } = useGiveUp(isGospel);
+
+  const fetchChapterData = async (wordsGuessForm: WordsGuess) => {
     try {
-      const [chapter, guessedWords] = await Promise.all([
-        fetchRandomChapter(isGospel),
-        getWordsGuess(isGospel),
-      ]);
+      const chapter = await fetchRandomChapter(isGospel, wordsGuessForm, giveUp);
       setRandomChapter(chapter);
-      setWordsGuess(guessedWords);
+      setWordsGuess(chapter.countWordsGuess);
+      if(chapter.win){
+        setSelectedGuess(null);
+      }
     } catch (error) {
       console.error("Error fetching chapter data:", error);
     }
   };
 
   useEffect(() => {
-    fetchChapterData();
-  }, [isGospel]);
+    fetchChapterData(wordsGuess);
+  }, [isGospel, giveUp]);
 
-  const handleFormSubmit = async (formData: FormData) => {
+  const handleFormSubmit = async () => {
     try {
-      await submitWord(formData);
-      await fetchChapterData();
+      const formData = new FormData();
+      formData.append("word", inputWord);
+
+      const response = await actionSubmit(wordsGuess, formData);
+
+      if (response.wordsGuess) {
+        await fetchChapterData(response.wordsGuess);
+        setMessageError(undefined);
+      } else {
+        setMessageError(response.error);
+
+        if (response.error === "Você já tentou essa palavra") {
+          setWordsGuess((prev) => raise(prev, inputWord));
+        }
+      }
+
       setInputWord("");
       setSelectedGuess(formData.get("word")?.toString() ?? "");
     } catch (error) {
@@ -48,11 +78,18 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
   };
 
   const handleReestart = async () => {
+    removeWordsGuess(); // Remova as palavras
+
+    // Aguarde até que o estado de `wordsGuess` seja atualizado corretamente
     setRandomChapter(null);
-    setWordsGuess(null);
-    await deleteCookies(isGospel);
-    await fetchChapterData();
     setSelectedGuess(null);
+    await deleteCookies(isGospel);
+
+    setTimeout(async () => {
+      await fetchChapterData({ words: [] }); 
+    }, 100);
+
+    removeGiveUp(); 
   };
 
   return {
@@ -61,9 +98,11 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     inputWord,
     setInputWord,
     selectedGuess,
+    messageError,
     setSelectedGuess,
-    wordsState,
     handleFormSubmit,
-    handleReestart
+    handleReestart,
+    handleGiveUp,
+    giveUp,
   };
 };

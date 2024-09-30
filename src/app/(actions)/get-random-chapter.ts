@@ -1,13 +1,13 @@
 "use server"
-import { decrypt, encrypt } from "@/lib/crypto";
-import { 
-  getchapterCookieName, 
-  getwordsGuessCookieName 
-} from "@/lib/utils";
 import { censorChapterContent } from "@/lib/censor-chapter";
-import type { CensorChapter, CurrentRandomChapter, GetRandomChapterResponse } from "@/types";
+import { decrypt, encrypt } from "@/lib/crypto";
+import {
+  getchapterStorageName,
+} from "@/lib/utils";
+import type { CensorChapter, CurrentRandomChapter, WordsGuess } from "@/types";
 import { cookies as storedCookies } from "next/headers";
-import { env } from "@/env";
+import { getChapter } from "@db/src/functions/get-chapter";
+import { getRandomChapter } from "@db/src/functions/get-random-chapter";
 
 // Função para obter e armazenar cookies
 const getCookie = (cookieName: string) => {
@@ -20,32 +20,16 @@ const setCookie = (cookieName: string, value: string | object, maxAgeInSeconds: 
   cookies.set(cookieName, typeof value === 'string' ? value : JSON.stringify(value), { maxAge: maxAgeInSeconds, sameSite: "strict"});
 };
 
-// Função para buscar capítulo aleatório
-const fetchRandomChapterFromAPI = async (isGospel: boolean): Promise<GetRandomChapterResponse> => {
-  const url = `${env.API_BASE_URL}/random-chapter${isGospel ? "?isGospel=true" : ""}`;
-  const response = await fetch(url);
-  return await response.json();
-};
-
-// Função para buscar um capítulo específico pelo número
-const fetchChapterByNumbers = async (bookNumber: number, chapterNumber: number): Promise<GetRandomChapterResponse> => {
-  const url = `${env.API_BASE_URL}/chapters/${bookNumber}/${chapterNumber}`;
-  const response = await fetch(url);
-  return await response.json();
-};
-
 // Função principal com princípios de SOLID e semântica melhorada
-export async function fetchRandomChapter(isGospel: boolean): Promise<CensorChapter & { win?: boolean }> {
-  const chapterCookieName = getchapterCookieName(isGospel);
-  const wordsGuessCookieName = getwordsGuessCookieName(isGospel);
+export async function fetchRandomChapter(isGospel: boolean, wordsGuess:WordsGuess, giveUp: boolean): Promise<CensorChapter & { win?: boolean, countWordsGuess:WordsGuess }> {
+  const chapterCookieName = getchapterStorageName(isGospel);
 
   // Obtenção de cookies
   const storedChapterCookie = getCookie(chapterCookieName);
-  const wordsGuessCookie = getCookie(wordsGuessCookieName)?.value;
 
   // Se não há capítulo armazenado nos cookies, buscar da API
   if (!storedChapterCookie) {
-    const randomChapter = await fetchRandomChapterFromAPI(isGospel);
+    const randomChapter = await getRandomChapter({ isGospel});
 
     // Criptografar e armazenar o capítulo nos cookies
     const encryptedChapter = encrypt({
@@ -55,25 +39,23 @@ export async function fetchRandomChapter(isGospel: boolean): Promise<CensorChapt
 
     setCookie(chapterCookieName, encryptedChapter);
 
-    return censorChapterContent(randomChapter);
+    return censorChapterContent(randomChapter, wordsGuess, false);
   }
 
   // Se há capítulo armazenado, decodificá-lo
   const decryptedChapter: CurrentRandomChapter = decrypt(storedChapterCookie.value, "json");
 
   // Buscar detalhes do capítulo a partir dos números decodificados
-  const chapterData = await fetchChapterByNumbers(decryptedChapter.bookNumber, decryptedChapter.chapterNumber);
+  const chapterData = await getChapter({ bookNumber: decryptedChapter.bookNumber, chapterNumber: decryptedChapter.chapterNumber });
 
   // Censurar conteúdo do capítulo baseado nas palavras adivinhadas (se houver)
-  const { bookName, chapterNumber, verses, countWordsGuess, win } = censorChapterContent(chapterData, wordsGuessCookie);
-
-  // Armazenar as palavras adivinhadas no cookie
-  setCookie(wordsGuessCookieName, countWordsGuess);
+  const { bookName, chapterNumber, verses, countWordsGuess, win } = censorChapterContent(chapterData, wordsGuess, giveUp);
 
   return {
     bookName,
     chapterNumber,
     verses,
+    countWordsGuess,
     win,
   };
 }

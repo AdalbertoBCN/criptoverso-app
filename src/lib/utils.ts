@@ -9,8 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 export const transparentSquare = "⠀";
 export const whiteSquare = "█";;
 
-export const getchapterCookieName = (isGospel:boolean) => isGospel ? "current-random-chapter-gospel" : "current-random-chapter";
-export const getwordsGuessCookieName = (isGospel:boolean) => isGospel ? "words-guess-gospel" : "words-guess";
+export const getchapterStorageName = (isGospel:boolean) => isGospel ? "current-random-chapter-gospel" : "current-random-chapter";
+export const getwordsGuessStorageName = (isGospel:boolean) => isGospel ? "words-guess-gospel" : "words-guess";
 
 export function raise(arr:WordsGuess, key:string) {
 

@@ -2,23 +2,33 @@
 import { CensorChapter } from "@/types";
 import { WordComponent } from "./word";
 import { transparentSquare } from "@/lib/utils";
+import IF from "./if";
 
 interface ChapterContentProps {
   randomChapter: (CensorChapter & { win?: boolean }) | null;
   selectedGuess: string | null;
+  giveUp: boolean;
 }
 
 export default function ChapterContent({
   randomChapter,
   selectedGuess,
+  giveUp
 }: ChapterContentProps) {
   return (
     <div className="flex flex-col gap-4 pb-4 pt-2"> 
-      {randomChapter?.win && (
+      <IF condition={!!randomChapter?.win && !giveUp}>
         <div className="w-full h-28 bg-success text-background text-lg rounded-lg flex items-center justify-center">
             Você acertou!
         </div>
-      )}
+      </IF>
+
+      <IF condition={giveUp}>
+        <div className="w-full h-28 bg-primary text-background text-lg rounded-lg flex items-center justify-center">
+            Você desistiu...
+        </div>
+      </IF>
+      
 
       <span className="text-xl">
       {randomChapter?.bookName.map((bookName, index) => (

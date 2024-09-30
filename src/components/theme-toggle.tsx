@@ -9,23 +9,45 @@ import { cn } from "@/lib/utils";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
-  function toggleDarkMode() {
-    setTheme(theme === "dark" ? "light" : "dark");
+  React.useEffect(() => setMounted(true), []);
+
+  function ButtonDarkMode() {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setTheme("dark")}
+        className={cn("rounded-full hover:bg-primary/20")}
+      >
+        <Moon size={20} />
+        <span className="sr-only">Ativar modo escuro</span>
+      </Button>
+    );
+  }
+
+  if (!mounted) {
+    return <div className="size-8 ml-2"/>;
+  }
+
+  function ButtonLightMode() {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setTheme("light")}
+        className={cn("rounded-full hover:bg-primary/20")}
+      >
+        <Sun size={20} />
+        <span className="sr-only">Ativar modo claro</span>
+      </Button>
+    );
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={toggleDarkMode}
-
-      className={cn("rounded-full hover:bg-primary/20")}
-    >
-      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-      <span className="sr-only">
-        {theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-      </span>
-    </Button>
+    <div>
+      {theme === "dark" ? <ButtonLightMode /> : <ButtonDarkMode />}
+    </div>
   );
 }

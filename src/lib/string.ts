@@ -1,4 +1,5 @@
 import { allWords } from "./allWords";
+
 import { transparentSquare, whiteSquare } from "./utils";
 
 export const getchapterCookieName = (isGospel: boolean) =>

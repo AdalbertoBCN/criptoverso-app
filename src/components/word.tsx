@@ -1,5 +1,6 @@
 "use client";
 
+import { getVariations } from "@/lib/getVariations";
 import { cn, whiteSquare } from "@/lib/utils";
 import { useState } from "react";
 
@@ -16,7 +17,7 @@ export function WordComponent({ word, selectedGuess }: WordProps) {
     setShowSize(!showSize);
   }
 
-  const isSelected = selectedGuess?.toLocaleLowerCase() === word.toLocaleLowerCase();
+  const isSelected = getVariations(selectedGuess?.toLocaleLowerCase() ?? "").includes(word.toLowerCase());
   const includesWhiteSquare = word.includes(whiteSquare);
 
   // Classes dinâmicas

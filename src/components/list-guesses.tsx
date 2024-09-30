@@ -9,18 +9,14 @@ import { ScrollArea } from "./ui/scroll-area";
 interface ListGuessesProps {
   wordsGuess: WordsGuess | null;
   setSelectedGuess: Dispatch<SetStateAction<string | null>>;
-  wordsState: {
-    error: {
-      message: string[] | undefined;
-    };
-  } | null | undefined;
+  messageError: string | undefined;
   selectedGuess: string | null;
 }
 
 export default function ListGuesses({
   wordsGuess,
   setSelectedGuess,
-  wordsState,
+  messageError,
   selectedGuess,
 }: ListGuessesProps) {
   const length = wordsGuess?.words.length;
@@ -32,9 +28,9 @@ export default function ListGuesses({
           <h2 className="px-4 pb-1 border-b-2 border-foreground/40">
             {length} Tentativas
           </h2>
-          {wordsGuess && wordsState?.error?.message && wordsState.error.message[0].length > 0 && (
+          {wordsGuess && messageError && messageError.length > 0 && (
             <div className="text-sm text-center px-1 py-2 bg-destructive/15 text-destructive">
-              {wordsState.error.message.join(", ")}
+              {messageError}
             </div>
           )}
           <ScrollArea className="h-[83vh] pr-1.5">
@@ -52,7 +48,7 @@ export default function ListGuesses({
                 key={word.word}
                 className={cn(
                   "w-full font-semibold rounded-none p-2 flex justify-between transition-colors",
-                  "data-[state=on]:bg-primary/30 data-[state=on]:text-primary-foreground", // Estilo para o item selecionado
+                  "data-[state=on]:bg-primary/30 data-[state=on]:dark:bg-primary/15 data-[state=on]:text-primary-foreground", // Estilo para o item selecionado
                   {
                     "text-success": word.count > 0,
                     "text-destructive": word.count < 1,
