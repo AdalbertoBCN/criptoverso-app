@@ -1,5 +1,4 @@
-"use client";
-
+import { useEffect, useState } from "react";
 import { deleteCookies } from "@/app/(actions)/delete-cookies";
 import { fetchRandomChapter } from "@/app/(actions)/get-random-chapter";
 import {
@@ -9,7 +8,6 @@ import {
 import { getwordsGuessStorageName, raise } from "@/lib/utils";
 import { CensorChapter, WordsGuess } from "@/types";
 import { useLocalStorage } from "usehooks-ts";
-import { useEffect, useState } from "react";
 import useGiveUp from "./useGiveUp";
 
 interface UseGameLogicProps {
@@ -22,31 +20,36 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     { words: [] }
   );
 
-  const [randomChapter, setRandomChapter] = useState<
-    (CensorChapter & { win?: boolean }) | null
-  >(null);
-
+  const [randomChapter, setRandomChapter] = useState<(CensorChapter & { win?: boolean }) | null>(null);
   const [inputWord, setInputWord] = useState<string>("");
   const [selectedGuess, setSelectedGuess] = useState<string | null>(null);
-
   const actionSubmit = isGospel ? actionSubmitWordGospel : actionSubmitWord;
-
   const [messageError, setMessageError] = useState<string | undefined>();
-
   const { giveUp, handleGiveUp, removeGiveUp } = useGiveUp(isGospel);
 
   const fetchChapterData = async (wordsGuessForm: WordsGuess) => {
     try {
       const chapter = await fetchRandomChapter(isGospel, wordsGuessForm, giveUp);
+      if (!chapter) {
+        throw new Error("Received null chapter data");
+      }
       setRandomChapter(chapter);
       setWordsGuess(chapter.countWordsGuess);
-      if(chapter.win){
+      if (chapter.win) {
         setSelectedGuess(null);
       }
-    } catch (error) {
-      console.error("Error fetching chapter data:", error);
+    } catch (error:any) {
+      console.error("Error fetching chapter data:", error.message, error);
+      // Adicione lógica para tratar o erro, se necessário
+      setMessageError("Erro ao buscar o capítulo. Tente novamente.");
     }
   };
+  
+
+  // Chama a função ao montar o componente pela primeira vez
+  useEffect(() => {
+    fetchChapterData(wordsGuess);
+  }, []);
 
   useEffect(() => {
     fetchChapterData(wordsGuess);
@@ -64,7 +67,6 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
         setMessageError(undefined);
       } else {
         setMessageError(response.error);
-
         if (response.error === "Você já tentou essa palavra") {
           setWordsGuess((prev) => raise(prev, inputWord));
         }
@@ -79,15 +81,11 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
 
   const handleReestart = async () => {
     removeWordsGuess(); // Remova as palavras
-
-    // Aguarde até que o estado de `wordsGuess` seja atualizado corretamente
     setRandomChapter(null);
     setSelectedGuess(null);
     await deleteCookies(isGospel);
     removeGiveUp(); 
-
     window.location.reload();
-
   };
 
   return {
