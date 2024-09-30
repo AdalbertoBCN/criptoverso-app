@@ -84,12 +84,10 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     setRandomChapter(null);
     setSelectedGuess(null);
     await deleteCookies(isGospel);
-
-    setTimeout(async () => {
-      await fetchChapterData({ words: [] }); 
-    }, 100);
-
     removeGiveUp(); 
+
+    window.location.reload();
+
   };
 
   return {

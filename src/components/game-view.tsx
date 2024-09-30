@@ -1,5 +1,6 @@
 "use client";
 import { useGameLogic } from "@/hooks/useGameLogic";
+import { useEffect, useState } from "react";
 import Logo from "./logo";
 import { RotateCcw } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
@@ -31,11 +32,16 @@ export default function GameView({ isGospel, title }: GameViewProps) {
     giveUp,
   } = useGameLogic({ isGospel });
 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // This ensures that the component only runs certain logic on the client
+  }, []);
+
   return (
     <div className="flex flex-col h-screen relative">
       <header className="h-16 flex items-center justify-between px-4 bg-foreground/10 dark:bg-foreground/5">
         <Logo />
-
         <h2 className="text-md font-semibold">
           {title}
           <RotateCcw
@@ -43,7 +49,6 @@ export default function GameView({ isGospel, title }: GameViewProps) {
             onClick={handleReestart}
           />
         </h2>
-
         <ThemeToggle />
       </header>
 
@@ -51,8 +56,9 @@ export default function GameView({ isGospel, title }: GameViewProps) {
         <div className="flex flex-col flex-1 overflow-hidden">
           <div className="flex flex-col">
             <ScrollArea className="px-4 h-[calc(100vh-8rem)]">
+              {/* Ensure this content is rendered only on the client */}
               <div suppressHydrationWarning>
-                {randomChapter ? (
+                {isClient && randomChapter ? (
                   <ChapterContent
                     randomChapter={randomChapter}
                     selectedGuess={selectedGuess}
@@ -66,7 +72,7 @@ export default function GameView({ isGospel, title }: GameViewProps) {
           </div>
 
           <footer className="h-40 bottom-0 left-0 grid grid-flow-col bg-foreground/10 dark:bg-foreground/5 px-4 py-3">
-            <IF condition={!!randomChapter}>
+            <IF condition={isClient && !!randomChapter}>
               <>
                 <SubmitInput
                   inputWord={inputWord}
@@ -76,10 +82,12 @@ export default function GameView({ isGospel, title }: GameViewProps) {
                   giveUp={giveUp}
                 />
                 <IF condition={!giveUp && !randomChapter?.win}>
-                  <GiveUp handleGiveUp={handleGiveUp}/>
+                  <GiveUp handleGiveUp={handleGiveUp} />
                 </IF>
                 <IF condition={giveUp}>
-                  <span className="justify-self-center h-min text-lg">Você desistiu...</span>
+                  <span className="justify-self-center h-min text-lg">
+                    Você desistiu...
+                  </span>
                 </IF>
                 <IF condition={!!randomChapter?.win && !giveUp}>
                   <span className="justify-self-center h-min text-lg">
@@ -92,12 +100,15 @@ export default function GameView({ isGospel, title }: GameViewProps) {
         </div>
 
         <aside className="w-48 bg-foreground/10 dark:bg-foreground/5" suppressHydrationWarning>
-          <ListGuesses
-            wordsGuess={wordsGuess}
-            setSelectedGuess={setSelectedGuess}
-            messageError={messageError}
-            selectedGuess={selectedGuess}
-          />
+          {/* Ensure guesses list renders only when client is ready */}
+          {isClient && (
+            <ListGuesses
+              wordsGuess={wordsGuess}
+              setSelectedGuess={setSelectedGuess}
+              messageError={messageError}
+              selectedGuess={selectedGuess}
+            />
+          )}
         </aside>
       </main>
     </div>

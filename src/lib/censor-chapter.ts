@@ -80,6 +80,6 @@ export function censorChapterContent(
     chapterNumber: censoredNumber,
     verses: censoredVerses,
     countWordsGuess: wordsGuess,
-    win,
+    win: win && !giveUp,
   };
 }
