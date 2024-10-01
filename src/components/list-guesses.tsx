@@ -5,12 +5,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { capitalize } from "@/lib/string";
 import { Dispatch, SetStateAction } from "react";
 import { ScrollArea } from "./ui/scroll-area";
+import Spinner from "./spinner";
 
 interface ListGuessesProps {
   wordsGuess: WordsGuess | null;
   setSelectedGuess: Dispatch<SetStateAction<string | null>>;
   messageError: string | undefined;
   selectedGuess: string | null;
+  isPending: boolean;
 }
 
 export default function ListGuesses({
@@ -18,6 +20,7 @@ export default function ListGuesses({
   setSelectedGuess,
   messageError,
   selectedGuess,
+  isPending
 }: ListGuessesProps) {
   const length = wordsGuess?.words.length;
 
@@ -25,8 +28,9 @@ export default function ListGuesses({
     <>
       {wordsGuess && wordsGuess.words && (
         <>
-          <h2 className="px-4 pb-1 border-b-2 border-foreground/40">
+          <h2 className="px-4 pb-1 border-b-2 border-foreground/40 relative flex gap-2 items-center">
             {length} Tentativas
+            {isPending && <Spinner className="size-min scale-90"/>}
           </h2>
           {wordsGuess && messageError && messageError.length > 0 && (
             <div className="text-sm text-center px-1 py-2 bg-destructive/15 text-destructive">

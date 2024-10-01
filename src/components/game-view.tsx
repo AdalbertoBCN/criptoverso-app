@@ -30,6 +30,8 @@ export default function GameView({ isGospel, title }: GameViewProps) {
     messageError,
     handleGiveUp,
     giveUp,
+    isPending,
+    setIsPending
   } = useGameLogic({ isGospel });
 
   const [isClient, setIsClient] = useState(false);
@@ -80,6 +82,8 @@ export default function GameView({ isGospel, title }: GameViewProps) {
                   setInputWord={setInputWord}
                   win={randomChapter?.win}
                   giveUp={giveUp}
+                  isPending={isPending}
+                  setIsPending={setIsPending}
                 />
                 <IF condition={!giveUp && !randomChapter?.win}>
                   <GiveUp handleGiveUp={handleGiveUp} />
@@ -101,13 +105,16 @@ export default function GameView({ isGospel, title }: GameViewProps) {
 
         <aside className="w-48 bg-foreground/10 dark:bg-foreground/5" suppressHydrationWarning>
           {/* Ensure guesses list renders only when client is ready */}
-          {isClient && (
+          {isClient && randomChapter && (
+            <>
             <ListGuesses
               wordsGuess={wordsGuess}
               setSelectedGuess={setSelectedGuess}
               messageError={messageError}
               selectedGuess={selectedGuess}
-            />
+              isPending={isPending}
+              />
+              </>
           )}
         </aside>
       </main>

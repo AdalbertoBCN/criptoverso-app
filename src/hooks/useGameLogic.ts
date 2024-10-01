@@ -26,6 +26,7 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
   const actionSubmit = isGospel ? actionSubmitWordGospel : actionSubmitWord;
   const [messageError, setMessageError] = useState<string | undefined>();
   const { giveUp, handleGiveUp, removeGiveUp } = useGiveUp(isGospel);
+  const [isPending, setIsPending] = useState(false);
 
   const fetchChapterData = async (wordsGuessForm: WordsGuess) => {
     try {
@@ -53,27 +54,27 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     fetchChapterData(wordsGuess);
   }, [isGospel, giveUp]);
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (formData: FormData) => {
+    setIsPending(true);  // Exiba o spinner
     try {
-      const formData = new FormData();
-      formData.append("word", inputWord);
-
+      const word = formData.get("word")?.toString() as string;
       const response = await actionSubmit(wordsGuess, formData);
-
+  
       if (response.wordsGuess) {
         await fetchChapterData(response.wordsGuess);
         setMessageError(undefined);
       } else {
         setMessageError(response.error);
         if (response.error === "Você já tentou essa palavra") {
-          setWordsGuess((prev) => raise(prev, inputWord));
+          setWordsGuess((prev) => raise(prev, word));
         }
       }
-
-      setInputWord("");
-      setSelectedGuess(formData.get("word")?.toString() ?? "");
+  
+      setSelectedGuess(word);
     } catch (error) {
       console.error("Error submitting word:", error);
+    } finally {
+      setIsPending(false);  // Oculte o spinner após a resposta
     }
   };
 
@@ -98,5 +99,7 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     handleReestart,
     handleGiveUp,
     giveUp,
+    isPending,
+    setIsPending
   };
 };
