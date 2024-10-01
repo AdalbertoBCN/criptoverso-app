@@ -4,10 +4,10 @@ import { decrypt, encrypt } from "@/lib/crypto";
 import {
   getchapterStorageName,
 } from "@/lib/utils";
-import type { CensorChapter, CurrentRandomChapter, WordsGuess } from "@/types";
+import type { CensorChapter, CurrentRandomChapter, GetRandomChapterResponse, WordsGuess } from "@/types";
 import { cookies as storedCookies } from "next/headers";
-import { getChapter } from "@db/src/functions/get-chapter";
-import { getRandomChapter } from "@db/src/functions/get-random-chapter";
+import { getChapter } from "@/db/src/functions/get-chapter";
+import { getRandomChapter } from "@/db/src/functions/get-random-chapter";
 
 // Função para obter e armazenar cookies
 const getCookie = (cookieName: string) => {
@@ -29,7 +29,7 @@ export async function fetchRandomChapter(isGospel: boolean, wordsGuess:WordsGues
 
   // Se não há capítulo armazenado nos cookies, buscar da API
   if (!storedChapterCookie) {
-    const randomChapter = await getRandomChapter({ isGospel});
+    const randomChapter:GetRandomChapterResponse = await getRandomChapter({ isGospel }) as GetRandomChapterResponse;
 
     // Criptografar e armazenar o capítulo nos cookies
     const encryptedChapter = encrypt({

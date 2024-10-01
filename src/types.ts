@@ -6,7 +6,7 @@ export interface GetRandomChapterResponse {
 }
 
 export interface Verse {
-  verseNumber: number;
+  number: number;
   text: string;
 }
 

@@ -1,51 +1,43 @@
 import { z } from "zod";
-import { db } from "@db/src/index";
-import { books, chapters, verses } from "@db/src/schema";
-import { and, eq } from "drizzle-orm";
+import { prisma } from "@db/prisma";
 
+// Definição do schema de validação usando Zod
 export const getChapterSchema = z.object({
-    bookNumber: z.number(),
-    chapterNumber: z.number(),  
+  bookNumber: z.coerce.number(),
+  chapterNumber: z.coerce.number(),
 });
 
-export async function getChapter(
-  data: z.infer<typeof getChapterSchema>
-) {
+export async function getChapter(data: z.infer<typeof getChapterSchema>) {
   const { bookNumber, chapterNumber } = getChapterSchema.parse(data);
 
-  const bookAndChapter = db
-  .select({
-    bookName: books.name,
-    bookNumber: books.number,
-    chapterNumber: chapters.number,
-  })
-  .from(books)
-  .where(
-    and(
-        eq(books.number, bookNumber),
-        eq(chapters.number, chapterNumber)
-  ))
-  .innerJoin(chapters, eq(books.number, chapters.bookNumber))
-  .get();
+  const bookChapterAndVerses = await prisma.chapter.findFirst({
+    where: {
+      number: chapterNumber,
+      bookNumber: bookNumber,
+    },
+    include: {
+      book: {
+        select:{
+          name: true,
+        }
+      },
+      verses: {
+        select: {
+          number: true,
+          text: true,
+        },
+      }
+    },
+  });
 
-  const versesOfRandomBookAndChapter = await db
-    .select({
-      verseNumber: verses.number,
-      text: verses.text,
-    })
-    .from(verses)
-    .where(
-      and(
-        eq(verses.bookNumber, bookAndChapter?.bookNumber as number),
-        eq(verses.chapterNumber, bookAndChapter?.chapterNumber as number)
-      )
-    )
-    .all();
+  if (!bookChapterAndVerses) {
+    throw new Error("Capítulo não encontrado");
+  }
 
-    return {
-        bookName: bookAndChapter?.bookName as string,
-        bookNumber: bookAndChapter?.bookNumber as number,
-        chapterNumber: bookAndChapter?.chapterNumber as number,
-        verses: versesOfRandomBookAndChapter,
-    }
+  return {
+    bookName: bookChapterAndVerses.book.name,
+    bookNumber,
+    chapterNumber,
+    verses: bookChapterAndVerses.verses,
+  };
 }

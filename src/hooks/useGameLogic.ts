@@ -38,10 +38,8 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
       if (chapter.win) {
         setSelectedGuess(null);
       }
-    } catch (error:any) {
-      console.error("Error fetching chapter data:", error.message, error);
-      // Adicione lógica para tratar o erro, se necessário
-      setMessageError("Erro ao buscar o capítulo. Tente novamente.");
+    } catch {
+      console.error("Error fetching chapter data");
     }
   };
   
