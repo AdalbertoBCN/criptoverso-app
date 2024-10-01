@@ -14,7 +14,7 @@ export const getwordsGuessCookieName = (isGospel: boolean) =>
     const separatorRegex = /(\s+)/g;
     const removeSoftHyphenRegex = /\u00AD/g;
 
-    text = text.replace(removeSoftHyphenRegex, transparentSquare);
+    text = text.replace(removeSoftHyphenRegex, "");
     text = text.replace(separatorRegex, transparentSquare);
 
     const matches = Array.from(text.matchAll(wordBoundaryRegex));
