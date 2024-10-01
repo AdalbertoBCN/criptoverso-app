@@ -33,7 +33,6 @@ export function GiveUp({handleGiveUp}: GiveUpProps) {
             <DialogClose asChild>
                 <Button type="submit" className="text-destructive ring-1 ring-destructive hover:bg-destructive/20 hover:text-destructive" variant="outline" onClick={() => {
                   handleGiveUp()
-                  window.location.reload()
                 }}>Desistir</Button>
             </DialogClose>
             <DialogClose asChild>

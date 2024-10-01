@@ -29,6 +29,7 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
   const [isPending, setIsPending] = useState(false);
 
   const fetchChapterData = async (wordsGuessForm: WordsGuess) => {
+
     try {
       const chapter = await fetchRandomChapter(isGospel, wordsGuessForm, giveUp);
       if (!chapter) {
@@ -43,7 +44,6 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
       console.error("Error fetching chapter data");
     }
   };
-  
 
   // Chama a função ao montar o componente pela primeira vez
   useEffect(() => {
@@ -100,6 +100,6 @@ export const useGameLogic = ({ isGospel }: UseGameLogicProps) => {
     handleGiveUp,
     giveUp,
     isPending,
-    setIsPending
+    setIsPending,
   };
 };

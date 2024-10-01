@@ -11,6 +11,7 @@ import Spinner from "./spinner";
 import ListGuesses from "./list-guesses";
 import IF from "./if";
 import { GiveUp } from "./give-up";
+import { whiteSquare } from "@/lib/utils";
 
 interface GameViewProps {
   isGospel: boolean;
@@ -31,7 +32,7 @@ export default function GameView({ isGospel, title }: GameViewProps) {
     handleGiveUp,
     giveUp,
     isPending,
-    setIsPending
+    setIsPending,
   } = useGameLogic({ isGospel });
 
   const [isClient, setIsClient] = useState(false);
@@ -60,7 +61,7 @@ export default function GameView({ isGospel, title }: GameViewProps) {
             <ScrollArea className="px-4 h-[calc(100vh-8rem)]">
               {/* Ensure this content is rendered only on the client */}
               <div suppressHydrationWarning>
-                {isClient && randomChapter ? (
+                {isClient && randomChapter && !(giveUp && randomChapter.bookName.join("").includes(whiteSquare)) ? (
                   <ChapterContent
                     randomChapter={randomChapter}
                     selectedGuess={selectedGuess}
