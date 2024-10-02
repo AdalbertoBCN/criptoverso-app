@@ -46,6 +46,7 @@ export default function SubmitInput({
               setInputWord("");
               handleFormSubmit(formData);
             }}
+            autoComplete="off"
           >
             <div className="relative">
               <Input
